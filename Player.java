@@ -1,9 +1,8 @@
-package Project;
 
-public class Player extends Character{
-    public Player(Map map){
-        super(map, 1);
-        this.locX = 0;
-        this.locY = 0;
+public class Player extends Character {
+    public Player(Map m) {
+        super(m, 1);
+        this.x = 0;
+        this.y = 0;
     }
 }

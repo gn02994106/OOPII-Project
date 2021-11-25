@@ -1,22 +1,22 @@
-package Project;
 
-public class AI extends Character{
-    public AI(Map map, int number){
-        super(map, number);
-        switch(number){
-            case 2:
-                locX = map.mapX - 1;
-                locY = 0;
-                break;
-            case 3:
-                locX = 0;
-                locY = map.mapY - 1;
-                break;
-            case 4:
-                locX = map.mapX - 1;
-                locY = map.mapY - 1;
+public class AI extends Character {
+    public AI(Map m, int number) {
+        super(m, number);
+        switch (number) {
+        case 2:
+            x = m.getMapWidth() - 1;
+            y = 0;
+            break;
+        case 3:
+            x = 0;
+            y = m.getMapHeight() - 1;
+            break;
+        case 4:
+            x = m.getMapWidth() - 1;
+            y = m.getMapHeight() - 1;
         }
     }
-    public void act(){
+
+    void act() {
     }
 }

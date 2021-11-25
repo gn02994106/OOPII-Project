@@ -1,37 +1,33 @@
-package Project;
 
 import javax.swing.ImageIcon;
 
-public abstract class Character{
-    protected int QOL = 5, totalPlace = 0, locX, locY;
-    protected Map map;
-    private final ImageIcon characterIcon;
-    protected String direction = "";
-    protected boolean[] garbageBag = new boolean[5];    //true:有
+public abstract class Character {
+    protected int QOL = 5, rank = 0, x, y;
+    private Map m;
+    private final ImageIcon icon;
+    private boolean[] garbageBag = new boolean[5]; // true:有
 
-    public Character(Map map, int number){
-        this.map = map;
-        this.characterIcon = new ImageIcon(this.getClass().getResource("Char" + number + ".png"));
+    public Character(Map m, int number) {
+        this.m = m;
+        this.icon = new ImageIcon(this.getClass().getResource("Char" + number + ".png"));
     }
-    
-    public void place(){
-        if (canPlace()){
-            for (int i = 0; i < garbageBag.length; i++){
-                if (garbageBag[i] == true){
+
+    public void place() {
+        if (canPlace()) {
+            for (int i = 0; i < garbageBag.length; i++) {
+                if (garbageBag[i] == true) {
                     garbageBag[i] = false;
-                    map.garbages.add(new Garbage(this.locX, this.locY, Threads.getTime()));
-                    totalPlace++;
+                    m.addGarbage(x, y);
                     break;
                 }
             }
-        }
-        else{
-            for (int i = 0; i < garbageBag.length; i++){
-                if (garbageBag[i] == false){
-                    for(int j = 0; j < (map.garbages.size()); j++){
-                        if ((map.garbages.get(j).locX == this.locX) && (map.garbages.get(j).locY == this.locY)){
+        } else {
+            for (int i = 0; i < garbageBag.length; i++) {
+                if (garbageBag[i] == false) {
+                    for (int j = 0; j < (m.getNumberOfGarbages()); j++) {
+                        if ((m.getGarbage(j).getX() == x) && (m.getGarbage(j).getY() == y)) {
                             garbageBag[i] = true;
-                            map.garbages.remove(j);
+                            m.removeGarbage(j);
                             break;
                         }
                     }
@@ -41,29 +37,57 @@ public abstract class Character{
         }
     }
 
-    public ImageIcon getCharacterIcon(){
-        return this.characterIcon;
+    public ImageIcon getIcon() {
+        return icon;
     }
 
-    public void getHurt(){
-        if (this.getQOL() > 0)
-            this.QOL--;
+    public void setQOL(int n) {
+        if (n > 0)
+            QOL = n;
+        else if (n < 0 && QOL > 0)
+            QOL--;
     }
-    
-    public int getQOL(){
-        return this.QOL;
+
+    public int getX() {
+        return x;
     }
-    
-    private boolean canPlace(){
-        for (Garbage garbage : map.garbages){
-            if ((garbage.locX == (this.locX)) && (garbage.locY == (this.locY)))
+
+    public int getY() {
+        return y;
+    }
+
+    public int getQOL() {
+        return QOL;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setGarbageBag() {
+        garbageBag = new boolean[5];
+    }
+
+    public boolean[] getGarbageBag() {
+        return garbageBag;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    private boolean canPlace() {
+        for (int i = 0; i < m.getNumberOfGarbages(); i++) {
+            if (m.getGarbage(i).getX() == x && m.getGarbage(i).getY() == y)
                 return false;
         }
         return true;
     }
-    
-    public void changePos(int xChanged, int yChanged){
-        this.locX += xChanged;
-        this.locY += yChanged;
+
+    public void changePos(int x, int y) {
+        m.setCanMoveTo(this.x, this.y, true);
+        this.x = x;
+        this.y = y;
+        m.setCanMoveTo(x, y, false);
     }
 }

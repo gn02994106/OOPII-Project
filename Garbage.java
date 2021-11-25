@@ -1,17 +1,29 @@
-package Project;
 
 import javax.swing.ImageIcon;
 
-public class Garbage{
+public class Garbage {
     private final ImageIcon icon = new ImageIcon(this.getClass().getResource("Bomb.png"));
-    final int locX, locY, endTime;
-    public Garbage(int locX, int locY, int startTime){
-        this.locX = locX;
-        this.locY = locY;
+    private final int x, y, endTime;
+
+    public Garbage(int x, int y, int startTime) {
+        this.x = x;
+        this.y = y;
         endTime = startTime - 3;
     }
 
-    public ImageIcon getIcon(){
+    public ImageIcon getIcon() {
         return this.icon;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getEndTime() {
+        return endTime;
     }
 }
