@@ -1,7 +1,9 @@
+package Project;
 
 public abstract class MapType {
     protected boolean[][] canMoveTo;
-    protected int[][] home;
+    protected Obj[] obj;
+    boolean portalOpen, shieldUsed;
 
     public MapType() {
         canMoveTo = new boolean[17][16];
@@ -11,14 +13,15 @@ public abstract class MapType {
                 canMoveTo[i][j] = true;
             }
         }
+        setObstacle();
     }
 
     public boolean[][] getCanMoveTo() {
         return canMoveTo;
     }
 
-    public int[][] getHome() {
-        return home;
+    public Obj[] getObject() {
+        return obj;
     }
 
     abstract public int getOwner(int x, int y);

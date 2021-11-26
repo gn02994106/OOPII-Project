@@ -1,4 +1,4 @@
-
+package Project;
 public class Player extends Character {
     public Player(Map m) {
         super(m, 1);

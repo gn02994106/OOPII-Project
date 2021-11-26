@@ -1,3 +1,4 @@
+package Project;
 
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
@@ -14,37 +15,29 @@ public class Map extends JPanel implements KeyListener {
     private int width = 0, height = 0, rankCount = 4;
     private Character[] cs;
     private Player p;
+    private boolean portalOpened = true;
     private boolean[][] canMoveTo;
-    private int[][] home;
+    private Obj[] obj;
     private ArrayList<Garbage> gs = new ArrayList<>();
     private Timer timer;
-    private final ImageIcon[] icons = new ImageIcon[5];
+    private final ImageIcon bg = new ImageIcon(getClass().getResource("Background.png"));
     private final Random r = new Random();
 
     private MapType mapType = new Map01();
 
     public Map(Threads t, int width, int height) {
         this.t = t;
-        icons[4] = new ImageIcon(getClass().getResource("Background.png"));
-        for (int i = 0; i < 4; i++) {
-            icons[i] = new ImageIcon(getClass().getResource("Home" + (i + 1) + ".png"));
-        }
         this.width = width;
         this.height = height;
         this.setFocusable(true);
         this.addKeyListener(this);
-
+        obj = mapType.getObject();
         initialize();
     }
 
     public void initialize() {
-        if (mapType instanceof Map01) {
-            canMoveTo = ((Map01) mapType).getCanMoveTo();
-            home = ((Map01) mapType).getHome();
-        } else {
-            canMoveTo = mapType.getCanMoveTo();
-            home = mapType.getHome();
-        }
+        portalOpened = true;
+        canMoveTo = mapType.getCanMoveTo();
         gs = new ArrayList<>();
         timer = new Timer();
         new Task().run();
@@ -64,6 +57,37 @@ public class Map extends JPanel implements KeyListener {
         }
     }
 
+    protected void paintComponent(Graphics g) {
+        if (t.getGameStatus()) {
+            super.paintComponent(g);
+            bg.paintIcon(this, g, 0, 0);
+            for (Obj o : obj) {
+                if (o instanceof Shield)
+                    if (((Shield) o).isUsed())
+                        continue;
+                o.getIcon().paintIcon(this, g, o.getX() * 50, o.getY() * 50);
+            }
+            for (Character c : cs) {
+                if (c.getQOL() == 0)
+                    canMoveTo[c.getX()][c.getY()] = true;
+                else {
+                    canMoveTo[c.getX()][c.getY()] = false;
+                    c.getIcon().paintIcon(this, g, c.getX() * 50, c.getY() * 50);
+                }
+            }
+            for (int i = 0; i < gs.size(); i++) {
+                if (checkGarbage(i))
+                    i--;
+                if (i >= 0) {
+                    Garbage garbage = gs.get(i);
+                    garbage.getIcon().paintIcon(this, g, garbage.getX() * 50, garbage.getY() * 50);
+                }
+            }
+            repaint();
+        } else
+            timer.cancel();
+    }
+
     public void setCharacter(Character[] cs) {
         this.cs = cs;
         p = (Player) this.cs[0];
@@ -71,6 +95,18 @@ public class Map extends JPanel implements KeyListener {
 
     public void setCanMoveTo(int x, int y, boolean b) {
         canMoveTo[x][y] = b;
+    }
+
+    public Obj[] getObjs() {
+        return obj;
+    }
+
+    public boolean PortalIsOpen() {
+        return portalOpened;
+    }
+
+    public void setPortal() {
+        portalOpened = !portalOpened;
     }
 
     public int getMapWidth() {
@@ -122,8 +158,8 @@ public class Map extends JPanel implements KeyListener {
                         rankCount--;
                 } else {
                     cs[owner - 1].setQOL(-1);
-                    if (g.getX() >= home[owner - 1][0] - 1 && g.getX() <= home[owner - 1][0] + 1
-                            && g.getY() >= home[owner - 1][1] - 1 && g.getY() <= home[owner - 1][1] + 1)
+                    if (g.getX() >= obj[owner - 1].getX() - 1 && g.getX() <= obj[owner - 1].getX() + 1
+                            && g.getY() >= obj[owner - 1].getY() - 1 && g.getY() <= obj[owner - 1].getY() + 1)
                         cs[owner - 1].setQOL(-1);
                     if (cs[owner - 1].getQOL() == 0 && cs[owner - 1].getRank() == 0)
                         cs[owner - 1].setRank(rankCount--);
@@ -133,34 +169,6 @@ public class Map extends JPanel implements KeyListener {
             }
         }
         return false;
-    }
-
-    protected void paintComponent(Graphics g) {
-        if (t.getGameStatus()) {
-            super.paintComponent(g);
-            icons[4].paintIcon(this, g, 0, 0);
-            for (int i = 0; i < home.length; i++) {
-                icons[i].paintIcon(this, g, home[i][0] * 50, home[i][1] * 50);
-            }
-            for (Character c : cs) {
-                if (c.getQOL() == 0)
-                    canMoveTo[c.getX()][c.getY()] = true;
-                else {
-                    canMoveTo[c.getX()][c.getY()] = false;
-                    c.getIcon().paintIcon(this, g, c.getX() * 50, c.getY() * 50);
-                }
-            }
-            for (int i = 0; i < gs.size(); i++) {
-                if (checkGarbage(i))
-                    i--;
-                if (i >= 0) {
-                    Garbage garbage = gs.get(i);
-                    garbage.getIcon().paintIcon(this, g, garbage.getX() * 50, garbage.getY() * 50);
-                }
-            }
-            repaint();
-        } else
-            timer.cancel();
     }
 
     @Override
@@ -184,8 +192,9 @@ public class Map extends JPanel implements KeyListener {
                 changedY = (p.getY() == height - 1) ? 0 : (p.getY() + 1);
                 break;
             }
-            if (canMoveTo[changedX][changedY])
+            if (canMoveTo[changedX][changedY]) {
                 p.changePos(changedX, changedY);
+            }
         }
     }
 

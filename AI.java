@@ -1,3 +1,4 @@
+package Project;
 
 public class AI extends Character {
     public AI(Map m, int number) {
